@@ -1,0 +1,2 @@
+#!/bin/bash
+gcc -Wall assignment1.c -o assignment1 -I. -L. -lpnm -lm
