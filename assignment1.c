@@ -8,11 +8,16 @@
 #define PGM 2
 #define PPM 3
 
-
+/*
+* Drawline takes inputs:
+* Image struct, start and end of y and x coordinates coresponding to rows and columns
+* Uses input information to plot a line from start to finish
+* Uses Bresenhams Line Algorithm to plot line
+*/
 int drawLine(struct PBM_Image *pbmImage, int x0, int x1, int y0, int y1)
 {
 
-    //Bresenhams Line Algorithm
+
     int dx;
     int dy;
     int startx;
@@ -21,7 +26,7 @@ int drawLine(struct PBM_Image *pbmImage, int x0, int x1, int y0, int y1)
     int finishy;
 
 
-
+    //if starting x smaller than finish x, reverse start and end so for loop can always be increasing.
     if(x1>=x0)
     {
         startx = x0;
@@ -35,7 +40,7 @@ int drawLine(struct PBM_Image *pbmImage, int x0, int x1, int y0, int y1)
         dx = x0-x1;
     }
 
-
+    //if starting y is smaller than finish y, reverse start and end
     if(y1>y0)
     {
         starty = y0;
@@ -53,10 +58,10 @@ int drawLine(struct PBM_Image *pbmImage, int x0, int x1, int y0, int y1)
 
 
 
-
+    //Use this variation if picture is a rectangle with x greater than or equal to y
     if(dx >= dy)
     {
-        //normal left to right, x,y increasing, square, or rectangle,dx is larger than dy
+
         int y = y0;
         int x;
         for(x = startx; x<=finishx; x++)
@@ -85,6 +90,7 @@ int drawLine(struct PBM_Image *pbmImage, int x0, int x1, int y0, int y1)
 
         }
     }
+    //if a rectangle with y greater than x, and the line is drawn in direction of y decreasing
     else if(dx <dy && y0>y1)
     {
 
@@ -117,9 +123,10 @@ int drawLine(struct PBM_Image *pbmImage, int x0, int x1, int y0, int y1)
         }
 
     }
+    //if picture is rectangle with y greater than x. Line is drawn with x and y increasing
     else
     {
-        //normal left to right,  x,y increasing, rectangle, dy is larger than dx
+
         int x = x0;
         int y;
         for(y = starty; y<=finishy; y++)
@@ -154,8 +161,10 @@ int drawLine(struct PBM_Image *pbmImage, int x0, int x1, int y0, int y1)
 }
 
 
-
-int pbm(int rows, int cols, int format, char *imageName)
+//plots a pbm image. First quarter of rows is black, white in the center of picture measuring
+//half height and half width of picture. Bottom quarter of rows is black. Uses two drawline calls
+// to draw an x spanning the white center
+int pbm(int rows, int cols, int format, char *imageName, int formatCode)
 {
     int colIndex;
     int rowIndex;
@@ -164,7 +173,7 @@ int pbm(int rows, int cols, int format, char *imageName)
 
     create_PBM_Image(&pbmImage, cols, rows);
 
-    //first for loop
+    //first for loop, makes everything black
     for(colIndex=0; colIndex<cols; colIndex++)
     {
         for(rowIndex=0; rowIndex<rows; rowIndex++)
@@ -176,7 +185,7 @@ int pbm(int rows, int cols, int format, char *imageName)
 
 
 
-    //middle
+    //draw white middle rectangle
     for(colIndex=cols/4; colIndex<cols - cols/4; colIndex++)
     {
         for(rowIndex=rows/4; rowIndex<rows - rows/4; rowIndex++)
@@ -186,10 +195,11 @@ int pbm(int rows, int cols, int format, char *imageName)
         }
     }
 
+    //draw lines
     drawLine(&pbmImage, cols/4, (cols-cols/4), rows/4, rows - rows/4);
     drawLine(&pbmImage, cols/4, cols-cols/4, rows-rows/4, rows/4);
 
-    save_PBM_Image(&pbmImage, imageName, false);
+    save_PBM_Image(&pbmImage, imageName, formatCode);
     free_PBM_Image(&pbmImage);
 
 
@@ -279,7 +289,7 @@ int main(int argc, char *argv[])
 
     if(pictureType == PBM)
     {
-        pbm(height, width, formatCode, imageName);
+        pbm(height, width, formatCode, imageName, formatCode);
     }
 //
 //    int row =255;
