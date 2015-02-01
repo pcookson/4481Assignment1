@@ -49,7 +49,7 @@ int drawLine(struct PBM_Image *pbmImage, int x0, int x1, int y0, int y1)
         dy = y0-y1;
     }
 
-    double D = 2*dy - dx;
+    int D = 2*dy - dx;
 
 
 
@@ -84,6 +84,38 @@ int drawLine(struct PBM_Image *pbmImage, int x0, int x1, int y0, int y1)
 
 
         }
+    }
+    else if(dx <dy && y0>y1)
+    {
+
+        int y;
+        int x=x0;
+        for(y=y0; y>y1; y--)
+        {
+            if(D > 0)
+            {
+                if(x0<x1)
+                {
+                    x = x +1;
+                }
+                else
+                {
+                    x = x-1;
+                }
+                pbmImage->image[y][x] = 1;
+                D = D + (2*dx-2*dy);
+                printf("x = %d, y = %d\n", x, y);
+            }
+            else
+            {
+                pbmImage->image[y][x] = 1;
+                printf("x = %d, y = %d\n", x, y);
+                D = D + (2*dx);
+            }
+
+
+        }
+
     }
     else
     {
@@ -154,7 +186,7 @@ int pbm(int rows, int cols, int format, char *imageName)
         }
     }
 
-    //drawLine(&pbmImage, cols/4, (cols-cols/4), rows/4, rows - rows/4);
+    drawLine(&pbmImage, cols/4, (cols-cols/4), rows/4, rows - rows/4);
     drawLine(&pbmImage, cols/4, cols-cols/4, rows-rows/4, rows/4);
 
     save_PBM_Image(&pbmImage, imageName, false);
