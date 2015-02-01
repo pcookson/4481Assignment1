@@ -160,11 +160,43 @@ int drawLine(struct PBM_Image *pbmImage, int x0, int x1, int y0, int y1)
     return 0;
 }
 
+int pgm(int rows, int cols, int formatCode, int maxGrayValue){
+    int colIndex;
+    int rowIndex;
+
+    struct PBM_Image pbmImage;
+
+    create_PBM_Image(&pbmImage, cols, rows);
+
+    //first for loop, makes everything black
+    for(colIndex=0; colIndex<cols; colIndex++)
+    {
+        for(rowIndex=0; rowIndex<rows; rowIndex++)
+        {
+
+            pbmImage.image[rowIndex][colIndex] = 1;
+        }
+    }
+
+
+
+    //draw white middle rectangle
+    for(colIndex=cols/4; colIndex<cols - cols/4; colIndex++)
+    {
+        for(rowIndex=rows/4; rowIndex<rows - rows/4; rowIndex++)
+        {
+
+            pbmImage.image[rowIndex][colIndex] = 0;
+        }
+    }
+
+
+}
 
 //plots a pbm image. First quarter of rows is black, white in the center of picture measuring
 //half height and half width of picture. Bottom quarter of rows is black. Uses two drawline calls
 // to draw an x spanning the white center
-int pbm(int rows, int cols, int format, char *imageName, int formatCode)
+int pbm(int rows, int cols, int formatCode, char *imageName)
 {
     int colIndex;
     int rowIndex;
@@ -289,7 +321,7 @@ int main(int argc, char *argv[])
 
     if(pictureType == PBM)
     {
-        pbm(height, width, formatCode, imageName, formatCode);
+        pbm(height, width, formatCode, imageName);
     }
 //
 //    int row =255;
