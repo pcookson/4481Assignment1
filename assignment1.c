@@ -9,41 +9,115 @@
 #define PPM 3
 
 
-int drawLine(struct PBM_Image pbmImage, int x0, int x1, int y0, int y1){
+int drawLine(struct PBM_Image *pbmImage, int x0, int x1, int y0, int y1)
+{
 
     //Bresenhams Line Algorithm
-    double dx = (double)(x1-x0);
-    double dy = (double)(y1-y0);
-    double err = 0.0;
-    double derr = sqrt((dy/dx)*(dy/dx));
+    int dx;
+    int dy;
+    int startx;
+    int starty;
+    int finishx;
+    int finishy;
 
-    int y = y0;
-    int x;
-    if(x0 < x1){
-        for(x = x0; x<x1; x++){
 
-            //pbmImage.image[y][x] = 1;
-            err = err + derr;
-            while(err > 0.5){
-            printf("x = %d, y = %d, err = %g\n", x, y, err);
-                //pbmImage.image[y][x] = 1;
-                y = y + (y1-y0);
-                err = err - 1.0;
+
+    if(x1>=x0)
+    {
+        startx = x0;
+        finishx = x1;
+        dx = x1-x0;
+    }
+    else
+    {
+        startx = x1;
+        finishx = x0;
+        dx = x0-x1;
+    }
+
+
+    if(y1>y0)
+    {
+        starty = y0;
+        finishy = y1;
+        dy = y1-y0;
+    }
+    else
+    {
+        starty = y1;
+        finishy = y0;
+        dy = y0-y1;
+    }
+
+    double D = 2*dy - dx;
+
+
+
+
+    if(dx >= dy)
+    {
+        //normal left to right, x,y increasing, square, or rectangle,dx is larger than dy
+        int y = y0;
+        int x;
+        for(x = startx; x<=finishx; x++)
+        {
+            if(D > 0)
+            {
+                if(y0<y1)
+                {
+                    y = y +1;
+                }
+                else
+                {
+                    y = y-1;
+                }
+                pbmImage->image[y][x] = 1;
+                D = D + (2*dy-2*dx);
+                printf("x = %d, y = %d\n", x, y);
             }
+            else
+            {
+                pbmImage->image[y][x] = 1;
+                printf("x = %d, y = %d\n", x, y);
+                D = D + (2*dy);
+            }
+
+
         }
+    }
+    else
+    {
+        //normal left to right,  x,y increasing, rectangle, dy is larger than dx
+        int x = x0;
+        int y;
+        for(y = starty; y<=finishy; y++)
+        {
+            if(D > 0)
+            {
+                if(x0<x1)
+                {
+                    x = x +1;
+                }
+                else
+                {
+                    x = x-1;
+                }
+                pbmImage->image[y][x] = 1;
+                D = D + (2*dx-2*dy);
+                printf("x = %d, y = %d\n", x, y);
+            }
+            else
+            {
+                pbmImage->image[y][x] = 1;
+                printf("x = %d, y = %d\n", x, y);
+                D = D + (2*dx);
+            }
+
+
         }
-//
-//    }else{
-//        for(x = x0; x>x1; x--){
-//            pbmImage.image[y][x] = 1;
-//            err = err + derr;
-//            while(err > 0.5){
-//                pbmImage.image[y][x] = 1;
-//                y = y + (y1-y0);
-//                err = err - 1.0;
-//            }
-//        }
-//    }
+
+    }
+
     return 0;
 }
 
@@ -76,17 +150,18 @@ int pbm(int rows, int cols, int format, char *imageName)
         for(rowIndex=rows/4; rowIndex<rows - rows/4; rowIndex++)
         {
 
-                pbmImage.image[rowIndex][colIndex] = 0;
+            pbmImage.image[rowIndex][colIndex] = 0;
         }
     }
 
-    drawLine(pbmImage, cols/4, cols-cols/4, rows/4, rows - rows/4);
+    //drawLine(&pbmImage, cols/4, (cols-cols/4), rows/4, rows - rows/4);
+    drawLine(&pbmImage, cols/4, cols-cols/4, rows-rows/4, rows/4);
 
     save_PBM_Image(&pbmImage, imageName, false);
     free_PBM_Image(&pbmImage);
 
 
-return 0;
+    return 0;
 }
 
 
@@ -170,7 +245,8 @@ int main(int argc, char *argv[])
         formatCode = atoi(argv[5]);
     }
 
-    if(pictureType == PBM){
+    if(pictureType == PBM)
+    {
         pbm(height, width, formatCode, imageName);
     }
 //
