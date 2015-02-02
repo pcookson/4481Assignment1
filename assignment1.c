@@ -160,7 +160,8 @@ int drawLine(struct PBM_Image *pbmImage, int x0, int x1, int y0, int y1)
     return 0;
 }
 
-int drawCenterPgm(struct PGM_Image *pgmImage, int rows, int cols, int maxGrayValue){
+int drawCenterPgm(struct PGM_Image *pgmImage, int rows, int cols, int maxGrayValue)
+{
     //four for loops. Start at edges of rectangle, then move row and column respectively for each loop
     //until you hit rows/2, cols/2
     int upperColumns;
@@ -176,11 +177,13 @@ int drawCenterPgm(struct PGM_Image *pgmImage, int rows, int cols, int maxGrayVal
     upperColumns = cols-cols/4;
     int gray = maxGrayValue;
     startColumn = cols/4;
-    while(row < rows/2){
+    while(row < rows/2)
+    {
         printf("row=%d, col=%d\n", row, col);
         pgmImage->image[row][col] = gray;
         col++;
-        if(col >= upperColumns){
+        if(col >= upperColumns)
+        {
             row++;
             startColumn++;
             col = startColumn;
@@ -192,7 +195,8 @@ int drawCenterPgm(struct PGM_Image *pgmImage, int rows, int cols, int maxGrayVal
 
 }
 
-int pgm(int rows, int cols, int formatCode, int maxGrayValue, char *imageName){
+int pgm(int rows, int cols, int formatCode, int maxGrayValue, char *imageName)
+{
     int colIndex;
     int rowIndex;
 
@@ -225,6 +229,116 @@ int pgm(int rows, int cols, int formatCode, int maxGrayValue, char *imageName){
     drawCenterPgm(&pgmImage, rows, cols, maxGrayValue);
     save_PGM_Image(&pgmImage, imageName, formatCode);
     free_PGM_Image(&pgmImage);
+    return 0;
+
+
+}
+
+int ppm(int rows, int cols, int formatCode, char *imageName, int maxColorValue)
+{
+
+    //redSquare
+    int row;
+    int col;
+    int red;
+    int green;
+    int blue;
+
+    struct PPM_Image ppmImage;
+    create_PPM_Image(&ppmImage, cols, rows, maxColorValue);
+
+    //red square
+    red =255;
+    green = 0;
+    blue=0;
+    for(row=0; row<rows/2; row++)
+    {
+
+        for(col=0; col<cols/3; col++)
+        {
+            ppmImage.image[row][col][RED] = red;
+            ppmImage.image[row][col][GREEN] = green;
+            ppmImage.image[row][col][BLUE] = blue;
+        }
+        blue = blue + (int)(255/((rows/2)));
+        green = green + (int)(255/((rows/2)));
+    }
+
+    //green square
+
+    red = 255;
+    green=255;
+    blue=255;
+    for(row=0; row<rows/2; row++)
+    {
+
+        for(col=cols/3; col<(2*cols)/3; col++)
+        {
+            ppmImage.image[row][col][RED] = red;
+            ppmImage.image[row][col][GREEN] = green;
+            ppmImage.image[row][col][BLUE] = blue;
+        }
+        blue = blue - (int)(255/((rows/2)));
+        red = red - (int)(255/((rows/2)));
+    }
+
+    //blue Square
+    red = 0;
+    green=0;
+    blue=255;
+    for(row=0; row<rows/2; row++)
+    {
+
+        for(col=2*cols/3; col<cols; col++)
+        {
+            ppmImage.image[row][col][RED] = red;
+            ppmImage.image[row][col][GREEN] = green;
+            ppmImage.image[row][col][BLUE] = blue;
+        }
+        green = green + (int)(255/((rows/2)));
+        red = red + (int)(255/((rows/2)));
+    }
+
+    //lower left gray
+    red = 0;
+    green=0;
+    blue=0;
+    for(row=rows/2; row<rows; row++)
+    {
+
+        for(col=0; col<cols/2; col++)
+        {
+            ppmImage.image[row][col][RED] = red;
+            ppmImage.image[row][col][GREEN] = green;
+            ppmImage.image[row][col][BLUE] = blue;
+        }
+        green = green + (int)(255/((rows/2)));
+        red = red + (int)(255/((rows/2)));
+        blue = blue + (int)(255/((rows/2)));
+    }
+
+    //upper left gray
+    red = 255;
+    green=255;
+    blue=255;
+    for(row=rows/2; row<rows; row++)
+    {
+
+        for(col=cols/2; col<cols; col++)
+        {
+            ppmImage.image[row][col][RED] = red;
+            ppmImage.image[row][col][GREEN] = green;
+            ppmImage.image[row][col][BLUE] = blue;
+        }
+        green = green - (int)(255/((rows/2)));
+        red = red - (int)(255/((rows/2)));
+        blue = blue - (int)(255/((rows/2)));
+    }
+
+
+    save_PPM_Image(&ppmImage, imageName, formatCode);
+    free_PPM_Image(&ppmImage);
+
     return 0;
 
 
@@ -359,8 +473,14 @@ int main(int argc, char *argv[])
     if(pictureType == PBM)
     {
         pbm(height, width, formatCode, imageName);
-    }else if(pictureType == PGM){
+    }
+    else if(pictureType == PGM)
+    {
         pgm(height, width, formatCode, 255, imageName);
+    }
+    else
+    {
+        ppm(height, width, formatCode, imageName, 255);
     }
 //
 //    int row =255;
