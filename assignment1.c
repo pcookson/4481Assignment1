@@ -160,13 +160,45 @@ int drawLine(struct PBM_Image *pbmImage, int x0, int x1, int y0, int y1)
     return 0;
 }
 
-int pgm(int rows, int cols, int formatCode, int maxGrayValue){
+int drawCenterPgm(struct PGM_Image *pgmImage, int rows, int cols, int maxGrayValue){
+    //four for loops. Start at edges of rectangle, then move row and column respectively for each loop
+    //until you hit rows/2, cols/2
+    int upperColumns;
+    int startColumn;
+
+    int row;
+    int col;
+
+
+    //for loop in upper triangle
+    row = rows/4;
+    col = cols/4;
+    upperColumns = cols-cols/4;
+    int gray = maxGrayValue;
+    startColumn = cols/4;
+    while(row < rows/2){
+        printf("%d\n", row);
+        pgmImage->image[row][col] = gray;
+        col++;
+        if(col == upperColumns){
+            row++;
+            startColumn++;
+            col = startColumn;
+            upperColumns--;
+            gray = gray - (maxGrayValue/(rows/4));
+        }
+    }
+    return 0;
+
+}
+
+int pgm(int rows, int cols, int formatCode, int maxGrayValue, char *imageName){
     int colIndex;
     int rowIndex;
 
-    struct PBM_Image pbmImage;
+    struct PGM_Image pgmImage;
 
-    create_PBM_Image(&pbmImage, cols, rows);
+    create_PGM_Image(&pgmImage, cols, rows, maxGrayValue);
 
     //first for loop, makes everything black
     for(colIndex=0; colIndex<cols; colIndex++)
@@ -174,7 +206,7 @@ int pgm(int rows, int cols, int formatCode, int maxGrayValue){
         for(rowIndex=0; rowIndex<rows; rowIndex++)
         {
 
-            pbmImage.image[rowIndex][colIndex] = 1;
+            pgmImage.image[rowIndex][colIndex] = 0;
         }
     }
 
@@ -186,9 +218,14 @@ int pgm(int rows, int cols, int formatCode, int maxGrayValue){
         for(rowIndex=rows/4; rowIndex<rows - rows/4; rowIndex++)
         {
 
-            pbmImage.image[rowIndex][colIndex] = 0;
+            pgmImage.image[rowIndex][colIndex] = 255;
         }
     }
+
+    drawCenterPgm(&pgmImage, rows, cols, maxGrayValue);
+    save_PGM_Image(&pgmImage, imageName, formatCode);
+    free_PGM_Image(&pgmImage);
+    return 0;
 
 
 }
@@ -322,6 +359,8 @@ int main(int argc, char *argv[])
     if(pictureType == PBM)
     {
         pbm(height, width, formatCode, imageName);
+    }else if(pictureType == PGM){
+        pgm(height, width, formatCode, 255, imageName);
     }
 //
 //    int row =255;
