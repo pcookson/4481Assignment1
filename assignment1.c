@@ -160,39 +160,62 @@ int drawLine(struct PBM_Image *pbmImage, int x0, int x1, int y0, int y1)
     return 0;
 }
 
-int drawCenterPgm(struct PGM_Image *pgmImage, int rows, int cols, int maxGrayValue)
-{
-    //four for loops. Start at edges of rectangle, then move row and column respectively for each loop
-    //until you hit rows/2, cols/2
-    int upperColumns;
-    int startColumn;
+int drawFadedCenter(struct PGM_Image *pgmImage, int row, int col, int maxGrayValue){
+    int x;
+    int y;
+    int dx;
+    int dy;
+    int startx;
+    int finishx;
+    int starty;
+    int finishy;
+    int D;
+    int color = 0;
+    int acrossx;
+    int index;
 
-    int row;
-    int col;
 
+    //draw upper triangle
 
-    //for loop in upper triangle
-    row = rows/4;
-    col = cols/4;
-    upperColumns = cols-cols/4;
-    int gray = maxGrayValue;
-    startColumn = cols/4;
-    while(row < rows/2)
+        startx = col/2;
+        finishx = col - col/4-1;
+        starty = row/2;
+        finishy = row/4;
+
+        dx = finishx - startx;
+        dy = starty - finishy;
+
+        D = 2*dy - dx;
     {
-        printf("row=%d, col=%d\n", row, col);
-        pgmImage->image[row][col] = gray;
-        col++;
-        if(col >= upperColumns)
+        y = starty;
+        for(x = startx; x<=finishx; x++)
         {
-            row++;
-            startColumn++;
-            col = startColumn;
-            upperColumns--;
-            gray = gray - (maxGrayValue/(rows/4));
+
+            if(D > 0)
+            {
+                acrossx = startx-(x-startx);
+                color = color + (int)(255/(row/4));
+                y = y - 1;
+                for(index=acrossx; index<=x;index++){
+                    pgmImage->image[y][index] = color;
+                }
+
+                D = D + (2*dy-2*dx);
+                printf("x = %d, y = %d, ax=%d\n", x, y, acrossx);
+            }
+            else
+            {
+                pgmImage->image[y][x] = color;
+                acrossx = startx - (x-startx);
+                pgmImage->image[y][acrossx] = color;
+                printf("x = %d, y = %d, D = %d\n", x, y, D);
+                D = D + (2*dy);
+            }
+
+
         }
     }
     return 0;
-
 }
 
 int pgm(int rows, int cols, int formatCode, int maxGrayValue, char *imageName)
@@ -226,7 +249,7 @@ int pgm(int rows, int cols, int formatCode, int maxGrayValue, char *imageName)
         }
     }
 
-    drawCenterPgm(&pgmImage, rows, cols, maxGrayValue);
+    drawFadedCenter(&pgmImage, rows, cols, maxGrayValue);
     save_PGM_Image(&pgmImage, imageName, formatCode);
     free_PGM_Image(&pgmImage);
     return 0;
@@ -317,7 +340,7 @@ int ppm(int rows, int cols, int formatCode, char *imageName, int maxColorValue)
         blue = blue + (int)(255/((rows/2)));
     }
 
-    //upper left gray
+    //lower right gray
     red = 255;
     green=255;
     blue=255;
