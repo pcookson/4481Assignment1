@@ -177,10 +177,10 @@ int drawCenterPgm(struct PGM_Image *pgmImage, int rows, int cols, int maxGrayVal
     int gray = maxGrayValue;
     startColumn = cols/4;
     while(row < rows/2){
-        printf("%d\n", row);
+        printf("row=%d, col=%d\n", row, col);
         pgmImage->image[row][col] = gray;
         col++;
-        if(col == upperColumns){
+        if(col >= upperColumns){
             row++;
             startColumn++;
             col = startColumn;
