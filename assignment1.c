@@ -14,147 +14,109 @@
 * Uses input information to plot a line from start to finish
 * Uses Bresenhams Line Algorithm to plot line
 */
-int drawLine(struct PBM_Image *pbmImage, int x0, int x1, int y0, int y1)
+int drawLine(struct PBM_Image *pbmImage, int cols, int rows)
 {
 
+    int dcol;
+    int drow;
+    int startcol;
+    int startrow;
+    int finishcol;
+    int finishrow;
 
-    int dx;
-    int dy;
-    int startx;
-    int starty;
-    int finishx;
-    int finishy;
 
 
-    //if starting x smaller than finish x, reverse start and end so for loop can always be increasing.
-    if(x1>=x0)
+
+    startcol = cols/2;
+    finishcol = cols - cols/4;
+    startrow = rows/2;
+    finishrow = rows/4;
+
+    if(cols>=rows)
     {
-        startx = x0;
-        finishx = x1;
-        dx = x1-x0;
-    }
-    else
-    {
-        startx = x1;
-        finishx = x0;
-        dx = x0-x1;
-    }
-
-    //if starting y is smaller than finish y, reverse start and end
-    if(y1>y0)
-    {
-        starty = y0;
-        finishy = y1;
-        dy = y1-y0;
-    }
-    else
-    {
-        starty = y1;
-        finishy = y0;
-        dy = y0-y1;
-    }
-
-    int D = 2*dy - dx;
-
-
-
-    //Use this variation if picture is a rectangle with x greater than or equal to y
-    if(dx >= dy)
-    {
-
-        int y = y0;
+        dcol = finishcol-startcol;
+        drow = startrow - finishrow;
+        int D = 2*drow - dcol;
+        int y = startrow;
         int x;
-        for(x = startx; x<=finishx; x++)
+
+        for(x = startcol; x<=finishcol; x++)
         {
+
             if(D > 0)
             {
-                if(y0<y1)
-                {
-                    y = y +1;
-                }
-                else
-                {
-                    y = y-1;
-                }
+                y--;
+                //line from center to top right
                 pbmImage->image[y][x] = 1;
-                D = D + (2*dy-2*dx);
-                printf("x = %d, y = %d\n", x, y);
+                //line from center to lower left
+                pbmImage->image[rows-y][x] = 1;
+
+                //line from center to top left
+                pbmImage->image[y][startcol-(x-startcol)] = 1;
+                //linfe from center to lower left
+                pbmImage->image[rows-y][startcol-(x-startcol)] = 1;
+
+
+                D = D + (2*drow-2*dcol);
+
             }
             else
             {
                 pbmImage->image[y][x] = 1;
-                printf("x = %d, y = %d\n", x, y);
-                D = D + (2*dy);
+                pbmImage->image[rows-y][x] = 1;
+                //line from center to top left
+                pbmImage->image[y][startcol-(x-startcol)] = 1;
+                //linfe from center to lower left
+                pbmImage->image[rows-y][startcol-(x-startcol)] = 1;
+
+                D = D + (2*drow);
             }
 
 
         }
     }
-    //if a rectangle with y greater than x, and the line is drawn in direction of y decreasing
-    else if(dx <dy && y0>y1)
-    {
-
-        int y;
-        int x=x0;
-        for(y=y0; y>y1; y--)
-        {
-            if(D > 0)
-            {
-                if(x0<x1)
-                {
-                    x = x +1;
-                }
-                else
-                {
-                    x = x-1;
-                }
-                pbmImage->image[y][x] = 1;
-                D = D + (2*dx-2*dy);
-                printf("x = %d, y = %d\n", x, y);
-            }
-            else
-            {
-                pbmImage->image[y][x] = 1;
-                printf("x = %d, y = %d\n", x, y);
-                D = D + (2*dx);
-            }
-
-
-        }
-
-    }
-    //if picture is rectangle with y greater than x. Line is drawn with x and y increasing
     else
     {
-
-        int x = x0;
+        dcol = finishcol-startcol;
+        drow = startrow - finishrow;
+        int D = 2*dcol - drow;
+        int x = startcol;
         int y;
-        for(y = starty; y<=finishy; y++)
+
+        for(y = startrow; y>=finishrow; y--)
         {
+
             if(D > 0)
             {
-                if(x0<x1)
-                {
-                    x = x +1;
-                }
-                else
-                {
-                    x = x-1;
-                }
+                x++;
+                //line from center to top right
                 pbmImage->image[y][x] = 1;
-                D = D + (2*dx-2*dy);
-                printf("x = %d, y = %d\n", x, y);
+                //line from center to lower left
+                pbmImage->image[rows-y][x] = 1;
+
+                //line from center to top left
+                pbmImage->image[y][startcol-(x-startcol)] = 1;
+                //linfe from center to lower left
+                pbmImage->image[rows-y][startcol-(x-startcol)] = 1;
+
+
+                D = D + (2*dcol-2*drow);
+
             }
             else
             {
                 pbmImage->image[y][x] = 1;
-                printf("x = %d, y = %d\n", x, y);
-                D = D + (2*dx);
+                pbmImage->image[rows-y][x] = 1;
+                //line from center to top left
+                pbmImage->image[y][startcol-(x-startcol)] = 1;
+                //linfe from center to lower left
+                pbmImage->image[rows-y][startcol-(x-startcol)] = 1;
+
+                D = D + (2*dcol);
             }
 
 
         }
-
     }
 
     return 0;
@@ -186,12 +148,12 @@ int drawFadedCenter(struct PGM_Image *pgmImage, int row, int col, int maxGrayVal
     dx = finishx - startx;
     dy = starty - finishy;
 
-    D = 2*dy - dx;
+
 
     //if square or horizontal rectangle
     if(col >= row)
     {
-
+        D = 2*dy - dx;
 
         y = starty;
         for(x = startx; x<=finishx; x++)
@@ -219,12 +181,14 @@ int drawFadedCenter(struct PGM_Image *pgmImage, int row, int col, int maxGrayVal
                 }
 
                 //right triangle
-                for(index=y; index<=(row-y); index++){
+                for(index=y; index<=(row-y); index++)
+                {
                     pgmImage->image[index][x] = color;
                 }
 
                 //left triangle
-                for(index=y;index<=(row-y);index++){
+                for(index=y; index<=(row-y); index++)
+                {
                     pgmImage->image[index][acrossx] = color;
                 }
 
@@ -238,15 +202,92 @@ int drawFadedCenter(struct PGM_Image *pgmImage, int row, int col, int maxGrayVal
                 acrossx = startx - (x-startx);
                 pgmImage->image[y][acrossx] = color;
                 //right triangle
-                for(index=y; index<=(row-y); index++){
+                for(index=y; index<=(row-y); index++)
+                {
                     pgmImage->image[index][x] = color;
                 }
                 //left triangle
-                for(index=y;index<=(row-y);index++){
+                for(index=y; index<=(row-y); index++)
+                {
                     pgmImage->image[index][acrossx] = color;
                 }
                 printf("x = %d, y = %d, D = %d\n", x, y, D);
                 D = D + (2*dy);
+            }
+
+
+        }
+    }
+    else
+    {
+        D = 2*dx - dy;
+
+        x = startx;
+        for(y = starty; y>=finishy; y--)
+        {
+
+            if(D > 0)
+            {
+                acrossx = startx-(x-startx);
+                if(color+7 >= 255)
+                {
+                    color = 255;
+                }
+                else
+                {
+                    color = color+7 ;// (int)(255/(row/4));
+
+
+                }
+
+                for(index=acrossx; index<=x; index++)
+                {
+                    pgmImage->image[y][index] = color;
+                    //lower triangle
+                    pgmImage->image[row-y][index] = color;
+                }
+
+                //right triangle
+                for(index=y; index<=(row-y); index++)
+                {
+                    pgmImage->image[index][x] = color;
+                }
+
+                //left triangle
+                for(index=y; index<=(row-y); index++)
+                {
+                    pgmImage->image[index][acrossx] = color;
+                }
+
+                x++;
+                D = D + (2*dx-2*dy);
+                //printf("x = %d, y = %d, ax=%d\n", x, y, acrossx);
+            }
+            else
+            {
+                pgmImage->image[y][x] = color;
+                acrossx = startx - (x-startx);
+                pgmImage->image[y][acrossx] = color;
+
+                for(index=acrossx; index<=x; index++)
+                {
+                    pgmImage->image[y][index] = color;
+                    //lower triangle
+                    pgmImage->image[row-y][index] = color;
+                }
+
+//                //right triangle
+//                for(index=y; index<=(row-y); index++)
+//                {
+//                    pgmImage->image[index][x] = color;
+//                }
+//                //left triangle
+//                for(index=y; index<=(row-y); index++)
+//                {
+//                    pgmImage->image[index][acrossx] = color;
+//                }
+                //printf("x = %d, y = %d, D = %d\n", x, y, D);
+                D = D + (2*dx);
             }
 
 
@@ -572,8 +613,8 @@ int pbm(int rows, int cols, int formatCode, char *imageName)
     }
 
     //draw lines
-    drawLine(&pbmImage, cols/4, (cols-cols/4), rows/4, rows - rows/4);
-    drawLine(&pbmImage, cols/4, cols-cols/4, rows-rows/4, rows/4);
+    drawLine(&pbmImage, cols, rows);
+    //drawLine(&pbmImage, cols/4, cols-cols/4, rows-rows/4, rows/4);
 
     save_PBM_Image(&pbmImage, imageName, formatCode);
     free_PBM_Image(&pbmImage);
