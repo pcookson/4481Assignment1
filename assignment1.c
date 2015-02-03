@@ -160,7 +160,8 @@ int drawLine(struct PBM_Image *pbmImage, int x0, int x1, int y0, int y1)
     return 0;
 }
 
-int drawFadedCenter(struct PGM_Image *pgmImage, int row, int col, int maxGrayValue){
+int drawFadedCenter(struct PGM_Image *pgmImage, int row, int col, int maxGrayValue)
+{
     int x;
     int y;
     int dx;
@@ -177,16 +178,20 @@ int drawFadedCenter(struct PGM_Image *pgmImage, int row, int col, int maxGrayVal
 
     //draw upper triangle
 
-        startx = col/2;
-        finishx = col - col/4-1;
-        starty = row/2;
-        finishy = row/4;
+    startx = col/2;
+    finishx = col - col/4;
+    starty = row/2;
+    finishy = row/4;
 
-        dx = finishx - startx;
-        dy = starty - finishy;
+    dx = finishx - startx;
+    dy = starty - finishy;
 
-        D = 2*dy - dx;
+    D = 2*dy - dx;
+
+    if(col >= row)
     {
+
+
         y = starty;
         for(x = startx; x<=finishx; x++)
         {
@@ -194,9 +199,14 @@ int drawFadedCenter(struct PGM_Image *pgmImage, int row, int col, int maxGrayVal
             if(D > 0)
             {
                 acrossx = startx-(x-startx);
-                color = color + (int)(255/(row/4));
+                if(color >= 255){
+                    color = 255;
+                }else{
+                    color = color+4 ;// (int)(255/(row/4));
+                }
                 y = y - 1;
-                for(index=acrossx; index<=x;index++){
+                for(index=acrossx; index<=x; index++)
+                {
                     pgmImage->image[y][index] = color;
                 }
 
@@ -215,6 +225,41 @@ int drawFadedCenter(struct PGM_Image *pgmImage, int row, int col, int maxGrayVal
 
         }
     }
+//    else if(col >row)
+//    printf("In long rectangle\n");
+//    {
+//        x = startx;
+//        for(y = starty; y>=finishy; y--)
+//        {
+//            if(D>0)
+//            {
+//                acrossx = startx - (x - startx);
+//                color = color + (int)(255/(row/4));
+//                x++;
+//                for(index=acrossx; index<=x;index++){
+//                    pgmImage->image[y][index] = color;
+//                }
+//
+//                D = D +(2*dx - 2*dy);
+//            }else{
+//                pgmImage->image[y][x] = color;
+//                acrossx = startx - (x-startx);
+//                for(index=acrossx; index<=x;index++){
+//                    pgmImage->image[y][index] = color;
+//                }
+//                //pgmImage->image[y][acrossx] = color;
+//                printf("x = %d, y = %d, D = %d\n", x, y, D);
+//                D = D + (2*dx);
+//            }
+//        }
+//    }
+
+
+    //draw right triangle
+
+
+
+
     return 0;
 }
 
