@@ -188,6 +188,7 @@ int drawFadedCenter(struct PGM_Image *pgmImage, int row, int col, int maxGrayVal
 
     D = 2*dy - dx;
 
+    //if square or horizontal rectangle
     if(col >= row)
     {
 
@@ -199,16 +200,34 @@ int drawFadedCenter(struct PGM_Image *pgmImage, int row, int col, int maxGrayVal
             if(D > 0)
             {
                 acrossx = startx-(x-startx);
-                if(color >= 255){
+                if(color+(row/(row/6)) >= 255)
+                {
                     color = 255;
-                }else{
-                    color = color+4 ;// (int)(255/(row/4));
+                }
+                else
+                {
+                    color = color+(row/(row/6)) ;// (int)(255/(row/4));
+
+
                 }
                 y = y - 1;
                 for(index=acrossx; index<=x; index++)
                 {
                     pgmImage->image[y][index] = color;
+                    //lower triangle
+                    pgmImage->image[row-y][index] = color;
                 }
+
+                //right triangle
+                for(index=y; index<=(row-y); index++){
+                    pgmImage->image[index][x] = color;
+                }
+
+                //left triangle
+                for(index=y;index<=(row-y);index++){
+                    pgmImage->image[index][acrossx] = color;
+                }
+
 
                 D = D + (2*dy-2*dx);
                 printf("x = %d, y = %d, ax=%d\n", x, y, acrossx);
@@ -218,6 +237,14 @@ int drawFadedCenter(struct PGM_Image *pgmImage, int row, int col, int maxGrayVal
                 pgmImage->image[y][x] = color;
                 acrossx = startx - (x-startx);
                 pgmImage->image[y][acrossx] = color;
+                //right triangle
+                for(index=y; index<=(row-y); index++){
+                    pgmImage->image[index][x] = color;
+                }
+                //left triangle
+                for(index=y;index<=(row-y);index++){
+                    pgmImage->image[index][acrossx] = color;
+                }
                 printf("x = %d, y = %d, D = %d\n", x, y, D);
                 D = D + (2*dy);
             }
@@ -290,7 +317,7 @@ int pgm(int rows, int cols, int formatCode, int maxGrayValue, char *imageName)
         for(rowIndex=rows/4; rowIndex<rows - rows/4; rowIndex++)
         {
 
-            pgmImage.image[rowIndex][colIndex] = 255;
+            pgmImage.image[rowIndex][colIndex] = maxGrayValue;
         }
     }
 
@@ -316,7 +343,7 @@ int ppm(int rows, int cols, int formatCode, char *imageName, int maxColorValue)
     create_PPM_Image(&ppmImage, cols, rows, maxColorValue);
 
     //red square
-    red =255;
+    red =maxColorValue;
     green = 0;
     blue=0;
     for(row=0; row<rows/2; row++)
@@ -328,15 +355,34 @@ int ppm(int rows, int cols, int formatCode, char *imageName, int maxColorValue)
             ppmImage.image[row][col][GREEN] = green;
             ppmImage.image[row][col][BLUE] = blue;
         }
-        blue = blue + (int)(255/((rows/2)));
-        green = green + (int)(255/((rows/2)));
+        if(rows>=255*2)
+        {
+            if(row %((rows/2)/255)==0)
+            {
+                if(blue < 255 && green < 255)
+                {
+                    blue++;
+                    green++;
+                }
+            }
+        }
+        else
+        {
+            if(blue+2<255 && green+2<255)
+            {
+                printf("%d\n", blue);
+                blue = blue +2*255/((rows/2));
+                green = green + 2*255/((rows/2));
+            }
+
+        }
     }
 
     //green square
 
-    red = 255;
-    green=255;
-    blue=255;
+    red = maxColorValue;
+    green=maxColorValue;
+    blue=maxColorValue;
     for(row=0; row<rows/2; row++)
     {
 
@@ -346,14 +392,33 @@ int ppm(int rows, int cols, int formatCode, char *imageName, int maxColorValue)
             ppmImage.image[row][col][GREEN] = green;
             ppmImage.image[row][col][BLUE] = blue;
         }
-        blue = blue - (int)(255/((rows/2)));
-        red = red - (int)(255/((rows/2)));
+        if(rows>=255*2)
+        {
+            if(row %((rows/2)/255)==0)
+            {
+                if(blue > 0 && red > 0)
+                {
+                    blue--;
+                    red--;
+                }
+            }
+        }
+        else
+        {
+            if(blue-2>0 && red-2>0)
+            {
+                printf("%d\n", blue);
+                blue = blue - 2*255/((rows/2));
+                red = red - 2*255/((rows/2));
+            }
+
+        }
     }
 
     //blue Square
     red = 0;
     green=0;
-    blue=255;
+    blue=maxColorValue;
     for(row=0; row<rows/2; row++)
     {
 
@@ -363,8 +428,27 @@ int ppm(int rows, int cols, int formatCode, char *imageName, int maxColorValue)
             ppmImage.image[row][col][GREEN] = green;
             ppmImage.image[row][col][BLUE] = blue;
         }
-        green = green + (int)(255/((rows/2)));
-        red = red + (int)(255/((rows/2)));
+        if(rows>=255*2)
+        {
+            if(row %((rows/2)/255)==0)
+            {
+                if(red < 255 && green < 255)
+                {
+                    red++;
+                    green++;
+                }
+            }
+        }
+        else
+        {
+            if(red+2<255 && green+2<255)
+            {
+                printf("%d\n", blue);
+                red = red +2*255/((rows/2));
+                green = green + 2*255/((rows/2));
+            }
+
+        }
     }
 
     //lower left gray
@@ -380,15 +464,36 @@ int ppm(int rows, int cols, int formatCode, char *imageName, int maxColorValue)
             ppmImage.image[row][col][GREEN] = green;
             ppmImage.image[row][col][BLUE] = blue;
         }
-        green = green + (int)(255/((rows/2)));
-        red = red + (int)(255/((rows/2)));
-        blue = blue + (int)(255/((rows/2)));
+
+        if(rows>=255*2)
+        {
+            if(row %((rows/2)/255)==0)
+            {
+                if(red < 255 && green < 255)
+                {
+                    red++;
+                    green++;
+                    blue++;
+                }
+            }
+        }
+        else
+        {
+            if(red+2<255 && green+2<255)
+            {
+                printf("%d\n", blue);
+                red = red +2*255/((rows/2));
+                green = green + 2*255/((rows/2));
+                blue = blue + 2*255/((rows/2));
+            }
+
+        }
     }
 
     //lower right gray
-    red = 255;
-    green=255;
-    blue=255;
+    red = maxColorValue;
+    green=maxColorValue;
+    blue=maxColorValue;
     for(row=rows/2; row<rows; row++)
     {
 
@@ -398,9 +503,29 @@ int ppm(int rows, int cols, int formatCode, char *imageName, int maxColorValue)
             ppmImage.image[row][col][GREEN] = green;
             ppmImage.image[row][col][BLUE] = blue;
         }
-        green = green - (int)(255/((rows/2)));
-        red = red - (int)(255/((rows/2)));
-        blue = blue - (int)(255/((rows/2)));
+        if(rows>=255*2)
+        {
+            if(row %((rows/2)/255)==0)
+            {
+                if(red > 0 && green >0)
+                {
+                    red--;
+                    green--;
+                    blue--;
+                }
+            }
+        }
+        else
+        {
+            if(red-2>0 && green-2>0)
+            {
+                printf("%d\n", blue);
+                red = red -2*255/((rows/2));
+                green = green - 2*255/((rows/2));
+                blue = blue - 2*255/((rows/2));
+            }
+
+        }
     }
 
 
