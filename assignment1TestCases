@@ -1,0 +1,18 @@
+#!/bin/bash
+#pbm images
+./assignment1 1 512 512 pbmImage1.pbm 0
+./assignment1 1 512 1024 pbmImage2.pbm 0
+./assignment1 1 1024 512 pbmImage3.pbm 0
+./assignment1 2 512 512 pgmImage1.pgm 0
+./assignment1 2 512 1024 pgmImage2.pgm 0
+./assignment1 2 1024 512 pgmImage3.pgm 0
+./assignment1 3 600 600 ppmImage1.ppm 0
+./assignment1 3 600 1200 ppmImage2.ppm 0
+./assignment1 3 1200 600 ppmImage3.ppm 0
+#120 by 4 and 4 by 120 images
+./assignment1 1 120 4 pbmImage120_4.pbm 0
+./assignment1 1 4 120 pbmImage4_120.pbm 0
+./assignment1 2 120 4 pgmImage120_4.pgm 0
+./assignment1 2 4 120 pgmImage4_120.pgm 0
+./assignment1 3 120 6 ppmImage120_6.pgm 0
+./assignment1 3 6 120 ppmImage6_120.pgm 0

@@ -32,8 +32,10 @@ int drawLine(struct PBM_Image *pbmImage, int cols, int rows)
     startrow = rows/2;
     finishrow = rows/4;
 
+    //use this algorithm if horizontal rectangle or square
     if(cols>=rows)
     {
+        //starting parameters
         dcol = finishcol-startcol;
         drow = startrow - finishrow;
         int D = 2*drow - dcol;
@@ -75,8 +77,10 @@ int drawLine(struct PBM_Image *pbmImage, int cols, int rows)
 
         }
     }
+    //else the rectangle is vertical based
     else
     {
+        //starting parameters
         dcol = finishcol-startcol;
         drow = startrow - finishrow;
         int D = 2*dcol - drow;
@@ -122,6 +126,14 @@ int drawLine(struct PBM_Image *pbmImage, int cols, int rows)
     return 0;
 }
 
+/*
+* draw the faded inner part of the pgm image
+* Starts from the center and constructs the 'upper' triangle.
+* It then mirrors it to the other triangles in the center and fills in
+* the 'gaps' between the two points with the gray value at that location
+* This uses the same basic algorithm as in drawLine but with some added features
+* for filling in the white rectangle
+*/
 int drawFadedCenter(struct PGM_Image *pgmImage, int row, int col, int maxGrayValue)
 {
     int x;
@@ -136,11 +148,14 @@ int drawFadedCenter(struct PGM_Image *pgmImage, int row, int col, int maxGrayVal
     int color = 0;
     int acrossx;
     int index;
+
+    //perLine is used as a way to determine how many rows/columns should be the same color if cols, rows > maxGrayValue
+    //if cols, rows < maxGrayValue, then perLine is used to determine the gray 'jump' at each line
     int perLine;
 
 
-    //draw upper triangle
 
+    //starting parameters
     startx = col/2;
     finishx = col - col/4;
     starty = row/2;
@@ -157,16 +172,19 @@ int drawFadedCenter(struct PGM_Image *pgmImage, int row, int col, int maxGrayVal
         D = 2*dy - dx;
 
         y = starty;
+
+        //determine perLine usage
         if(col/4 >= maxGrayValue)
         {
+            //perLine is how many lines in a row have the same color
             perLine = (col/4)/maxGrayValue;
         }
         else
         {
+            //perLine is how many color values to 'jump' at each line
             perLine = (int)ceil((double)maxGrayValue/((double)col/(double)4));
         }
         for(x = startx; x<=finishx; x++)
-
         {
 
             if(D > 0)
@@ -175,7 +193,7 @@ int drawFadedCenter(struct PGM_Image *pgmImage, int row, int col, int maxGrayVal
 
                 if(col/4 >= maxGrayValue)
                 {
-
+                    //only increase color if x/4, the inner rectangle height/width is divisible by perLine value
                     if((x/4)%perLine == 0)
                     {
                         color++;
@@ -189,17 +207,20 @@ int drawFadedCenter(struct PGM_Image *pgmImage, int row, int col, int maxGrayVal
 
                 }
 
-
-                if(color >= 255)
+                //safety check on color value
+                if(color >= maxGrayValue)
                 {
 
-                    color = 255;
+                    color = maxGrayValue;
                 }
 
 
                 y = y - 1;
+
+                //fill in values across columns
                 for(index=acrossx; index<=x; index++)
                 {
+                    //upper triangle
                     pgmImage->image[y][index] = color;
                     //lower triangle
                     pgmImage->image[row-y][index] = color;
@@ -221,6 +242,7 @@ int drawFadedCenter(struct PGM_Image *pgmImage, int row, int col, int maxGrayVal
                 D = D + (2*dy-2*dx);
                 //printf("x = %d, y = %d, ax=%d\n", x, y, acrossx);
             }
+            //D <=0
             else
             {
                 if(col/4 >= maxGrayValue)
@@ -239,14 +261,16 @@ int drawFadedCenter(struct PGM_Image *pgmImage, int row, int col, int maxGrayVal
                 }
 
 
-                if(color >= 255)
+                if(color >= maxGrayValue)
                 {
 
-                    color = 255;
+                    color = maxGrayValue;
                 }
+
                 pgmImage->image[y][x] = color;
                 acrossx = startx - (x-startx);
                 pgmImage->image[y][acrossx] = color;
+
                 //right triangle
                 for(index=y; index<=(row-y); index++)
                 {
@@ -264,7 +288,9 @@ int drawFadedCenter(struct PGM_Image *pgmImage, int row, int col, int maxGrayVal
 
         }
     }
-    //if loog vertical rectangle
+
+    //if long vertical rectangle
+    // Same algorithm as above only row and column values swapped
     else
     {
         D = 2*dx - dy;
@@ -301,10 +327,10 @@ int drawFadedCenter(struct PGM_Image *pgmImage, int row, int col, int maxGrayVal
                 }
 
 
-                if(color >= 255)
+                if(color >= maxGrayValue)
                 {
 
-                    color = 255;
+                    color = maxGrayValue;
                 }
 
 
@@ -351,10 +377,10 @@ int drawFadedCenter(struct PGM_Image *pgmImage, int row, int col, int maxGrayVal
                 }
 
 
-                if(color >= 255)
+                if(color >= maxGrayValue)
                 {
 
-                    color = 255;
+                    color = maxGrayValue;
                 }
                 pgmImage->image[y][x] = color;
                 acrossx = startx - (x-startx);
@@ -420,10 +446,14 @@ int pgm(int rows, int cols, int formatCode, int maxGrayValue, char *imageName)
 
 }
 
+/*
+* creates a ppm image as shown in the assignment.
+* uses same perLine algorithm to fill color as in pgm
+*/
 int ppm(int rows, int cols, int formatCode, char *imageName, int maxColorValue)
 {
 
-    //redSquare
+
     int row;
     int col;
     int red;
@@ -478,8 +508,8 @@ int ppm(int rows, int cols, int formatCode, char *imageName, int maxColorValue)
         if(green >= maxColorValue)
         {
 
-            blue = 255;
-            green = 255;
+            blue = maxColorValue;
+            green = maxColorValue;
         }
 
     }
@@ -583,8 +613,8 @@ int ppm(int rows, int cols, int formatCode, char *imageName, int maxColorValue)
         if(green >= maxColorValue)
         {
 
-            red = 255;
-            green = 255;
+            red = maxColorValue;
+            green = maxColorValue;
         }
 
     }
@@ -635,9 +665,9 @@ int ppm(int rows, int cols, int formatCode, char *imageName, int maxColorValue)
 
         if(green >= maxColorValue)
         {
-            red = 255;
-            blue = 255;
-            green = 255;
+            red = maxColorValue;
+            blue = maxColorValue;
+            green = maxColorValue;
         }
 
     }
@@ -692,6 +722,24 @@ int ppm(int rows, int cols, int formatCode, char *imageName, int maxColorValue)
             green = 0;
         }
     }
+    struct PGM_Image pgmImage1;
+    create_PGM_Image(&pgmImage1, cols, rows, 255);
+    copy_PPM_to_PGM(&ppmImage,&pgmImage1, RED);
+    save_PGM_Image(&pgmImage1, "pgmImageRed.pgm", 0);
+    free_PGM_Image(&pgmImage1);
+
+    struct PGM_Image pgmImage2;
+    create_PGM_Image(&pgmImage2, cols, rows, 255);
+    copy_PPM_to_PGM(&ppmImage,&pgmImage2, GREEN);
+    save_PGM_Image(&pgmImage2, "pgmImageGreen.pgm", 0);
+    free_PGM_Image(&pgmImage2);
+
+    struct PGM_Image pgmImage3;
+    create_PGM_Image(&pgmImage3, cols, rows, 255);
+    copy_PPM_to_PGM(&ppmImage,&pgmImage3, BLUE);
+    save_PGM_Image(&pgmImage3, "pgmImageBlue.pgm", 0);
+    free_PGM_Image(&pgmImage3);
+
 
 
     save_PPM_Image(&ppmImage, imageName, formatCode);
@@ -840,32 +888,6 @@ int main(int argc, char *argv[])
     {
         ppm(height, width, formatCode, imageName, 255);
     }
-//
-//    int row =255;
-//    int column = 255;
-//    int indexRow;
-//    int indexCol;
-//    struct PBM_Image pic1;
-//
-//    create_PBM_Image(&pic1, row, column);
-//
-//    for(indexRow=0; indexRow<row; indexRow++)
-//    {
-//        for(indexCol=0; indexCol<column; indexCol++)
-//        {
-//            if(indexRow % 10 == 0)
-//            {
-//                pic1.image[indexRow][indexCol] = 0;
-//            }
-//            else
-//            {
-//                pic1.image[indexRow][indexCol] = 1;
-//            }
-//        }
-//    }
-//
-//    save_PBM_Image(&pic1, "testpbm.pbm", false);
-//    free_PBM_Image(&pic1);
-    return 0;
 
+    return 0;
 }
