@@ -1,0 +1,1 @@
+To compile this assignment, run ./makeAss1. This will compile assignment1.c into assignment1 and will link with the lpnm library and the lm libraries. 

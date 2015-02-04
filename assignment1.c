@@ -197,7 +197,7 @@ int drawFadedCenter(struct PGM_Image *pgmImage, int row, int col, int maxGrayVal
                     if((x/4)%perLine == 0)
                     {
                         color++;
-                        printf("%d\n", color);
+
                     }
                 }
                 else
@@ -240,7 +240,7 @@ int drawFadedCenter(struct PGM_Image *pgmImage, int row, int col, int maxGrayVal
 
 
                 D = D + (2*dy-2*dx);
-                //printf("x = %d, y = %d, ax=%d\n", x, y, acrossx);
+
             }
             //D <=0
             else
@@ -281,7 +281,7 @@ int drawFadedCenter(struct PGM_Image *pgmImage, int row, int col, int maxGrayVal
                 {
                     pgmImage->image[index][acrossx] = color;
                 }
-                //printf("x = %d, y = %d, D = %d\n", x, y, D);
+
                 D = D + (2*dy);
             }
 
@@ -357,7 +357,7 @@ int drawFadedCenter(struct PGM_Image *pgmImage, int row, int col, int maxGrayVal
 
                 x++;
                 D = D + (2*dx-2*dy);
-                //printf("x = %d, y = %d, ax=%d\n", x, y, acrossx);
+
             }
             else
             {
